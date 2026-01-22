@@ -1,603 +1,487 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HARDWORD</title>
-    <style>
-        body {
-            font-family: 'Poppins', Arial, sans-serif;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-            background-color: #000000;
-            color: #ffffff;
-            touch-action: manipulation;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-        }
-        
-        h1 {
-            color: #ffffff;
-            margin: 0;
-            font-size: 2.5rem;
-            letter-spacing: 2px;
-        }
-        
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-        }
-        
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 300px;
-            background-color: #121212;
-            color: #fff;
-            text-align: left;
-            border-radius: 6px;
-            padding: 15px;
-            position: absolute;
-            z-index: 1;
-            top: 100%;
-            right: 0;
-            margin-top: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            border: 1px solid #333;
-        }
-        
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-        }
-        
-        .game-container {
-            background-color: #121212;
-            border-radius: 10px;
-            padding: 20px;
-            border: 1px solid #333;
-        }
-        
-        .guess-board {
-            display: grid;
-            grid-template-rows: repeat(8, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-        
-        .guess-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr) 1fr 1fr;
-            gap: 5px;
-        }
-        
-        .letter-box {
-            width: 50px;
-            height: 50px;
-            border: 2px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            text-transform: uppercase;
-            border-radius: 5px;
-            perspective: 1000px;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-            background-color: #000000;
-            color: #ffffff;
-        }
-        
-        .letter-box.flip {
-            transform: rotateX(180deg);
-        }
-        
-        .letter-box-front, .letter-box-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 3px;
-            background-color: #000000;
-            color: #ffffff;
-        }
-        
-        .letter-box-back {
-            transform: rotateX(180deg);
-        }
-        
-        .feedback-box {
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin: auto;
-            border-radius: 50%;
-            border: 2px solid transparent;
-        }
-        
-        .correct {
-            background-color: #6aaa64;
-            border-color: #6aaa64;
-        }
-        
-        .present {
-            background-color: #c9b458;
-            border-color: #c9b458;
-        }
-        
-        .absent {
-            background-color: #787c7e;
-            border-color: #787c7e;
-        }
-        
-        .keyboard {
-            margin-top: 20px;
-        }
-        
-        .keyboard-row {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 8px;
-            gap: 5px;
-        }
-        
-        .key {
-            min-width: 30px;
-            height: 50px;
-            padding: 0 10px;
-            background-color: #333;
-            color: #ffffff;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .key.wide {
-            min-width: 50px;
-            font-size: 12px;
-        }
-        
-        .key:hover {
-            background-color: #444;
-        }
-        
-        .key:active {
-            transform: scale(0.95);
-        }
-        
-        .input-area {
-            margin-top: 20px;
-            display: none;
-        }
-        
-        .flex-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            column-gap: 5px;
-        }
-        
-        .keyboard-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            row-gap: 5px;
-            background: #222;
-            padding: 5px;
-            border-radius: 5px;
-            margin: 0 10px;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-        }
-        
-        /* Circled score numbers */
-        .attempt-score {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-left: 5px;
-            border: 2px solid transparent;
-        }
-        
-        .attempt-score-correct {
-            background-color: #6aaa64;
-            color: white;
-        }
-        
-        .attempt-score-present {
-            background-color: #c9b458;
-            color: white;
-        }
-        
-        .attempt-score-absent {
-            background-color: #787c7e;
-            color: white;
-        }
-        
-        .attempt-score-empty {
-            background-color: transparent;
-            border: 2px solid #333;
-            color: #666;
-        }
-        
-        @media (max-width: 500px) {
-            .letter-box {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
-            
-            .key {
-                height: 40px;
-                min-width: 25px;
-                font-size: 14px;
-            }
-            
-            .key.wide {
-                min-width: 40px;
-            }
-            
-            .tooltip .tooltiptext {
-                width: 250px;
-                right: -50px;
-            }
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&display=swap" rel="stylesheet">
+
+<title>HARDWORD</title>
+
+<style>
+/* ===== GLOBAL ===== */
+html, body {
+    height: 100%;
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: hidden;
+}
+
+/* ===== LANDING ===== */
+#landing {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+#landing h1 {
+    font-size: 3.5rem;
+    letter-spacing: 6px;
+    margin: 0 0 20px;
+}
+
+#landing button {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 14px 36px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+/* ===== APP GRID ===== */
+#game-app {
+    max-width: 480px;
+    margin: 0 auto;
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) 12px;
+    padding: 12px 16px;
+    box-sizing: border-box;
+}
+
+/* ===== HEADER ===== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.title h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    letter-spacing: 5px;
+    line-height: 1.1;
+}
+
+/* ===== RULES ===== */
+.tooltip {
+    position: relative;
+    cursor: pointer;
+}
+
+.tooltip-box {
+    position: absolute;
+    top: 140%;
+    right: 0;
+    width: 260px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.85rem;
+    color: #ddd;
+    display: none;
+}
+
+.tooltip:hover .tooltip-box {
+    display: block;
+}
+
+/* ===== ANSWER + NEXT ===== */
+.answer-bar {
+    margin-top: 6px;
+    font-size: 0.95rem;
+    color: #aaa;
+    min-height: 18px;
+}
+
+.answer-bar strong {
+    color: #fff;
+}
+
+.next-btn {
+    background: #1f1f1f;
+    border: 1px solid #3a3a3a;
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.next-btn.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ===== PLAY AREA ===== */
+.game-container {
+    display: grid;
+    place-items: center;
+}
+
+/* ===== BOARD ===== */
+.guess-board {
+    display: grid;
+    grid-template-rows: repeat(8, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.guess-row {
+    display: grid;
+    grid-template-columns: repeat(4, 44px) 70px;
+    gap: 8px;
+    align-items: center;
+}
+
+.letter-box {
+    height: clamp(40px, 6vh, 44px);
+    border-radius: 8px;
+    background: #070707;
+    border: 1px solid #1a1a1a;
+
+    font-size: clamp(18px, 3.2vh, 20px);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #d8d8d8;
+}
+
+
+/* ===== KEYBOARD MEMORY (CRITICAL) ===== */
+.key.used {
+    background: #111;
+    color: #555;
+}
+
+/* ===== SCORE ===== */
+.score-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+/* ===== SCORE (PRIMARY SIGNAL) ===== */
+.score {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 50%;
+    border: 2px solid #555;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+
+    color: #fff;
+    background: #0d0d0d;
+}
+/* Zero scores must still read as information */
+.score:empty {
+    border-color: #444;
+    background: #0a0a0a;
+}
+
+.green {
+    background: #6aaa64;
+    color: #000;
+    border: none;
+}
+
+.yellow {
+    background: #c9b458;
+    color: #000;
+    border: none;
+}
+
+
+/* ===== KEYBOARD ===== */
+.keyboard {
+    width: 100%;
+    max-width: 420px;
+}
+
+.krow {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.key {
+    height: clamp(40px, 7vh, 46px);
+    min-width: 30px;
+    padding: 0 8px;
+    background: #2b2b2b;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.key.wide { min-width: 56px; }
+
+/* ===== MOBILE INPUT ===== */
+#mobile-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+</style>
 </head>
+
 <body>
+
+<!-- LANDING -->
+<div id="landing">
+    <h1>HARDWORD</h1>
+    <button onclick="startGame()">PLAY</button>
+</div>
+
+<!-- GAME -->
+<div id="game-app" style="display:none">
     <div class="header">
-        <h1>HARDWORD</h1>
-        <div class="tooltip">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-            <div class="tooltiptext">
-                <p><strong>How to Play</strong></p>
-                <p>Find the hidden HARDWORD in eight tries.</p>
-                <p>Use the green and yellow scores after each guess, to see how close are you to the solution.</p>
-                <p><strong>Examples</strong></p>
-                <div class="flex-row" style="justify-content: start; margin: 10px 0;">
-                    <div style="display: flex; gap: 5px;">
-                        <div style="width: 30px; height: 30px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; background: #000; color: #fff;">W</div>
-                        <div style="width: 30px; height: 30px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; background: #000; color: #fff;">O</div>
-                        <div style="width: 30px; height: 30px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; background: #000; color: #fff;">R</div>
-                        <div style="width: 30px; height: 30px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; background: #000; color: #fff;">K</div>
-                    </div>
-                    <div style="display: flex; gap: 5px; margin-left: 10px;">
-                        <div style="width: 25px; height: 25px; background-color: #6aaa64; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%;">2</div>
-                        <div style="width: 25px; height: 25px; background-color: #c9b458; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%;">1</div>
-                    </div>
+        <div class="title">
+            <h1>HARDWORD</h1>
+            <div class="answer-bar" id="answerBar"></div>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+            <div class="tooltip">?
+                <div class="tooltip-box">
+                    <strong>How to Play</strong><br><br>
+                    Guess the 4-letter word in 8 tries.<br><br>
+                    🟢 = correct letter & position<br>
+                    🟡 = correct letter, wrong position<br><br>
+                    Letters never repeat.
                 </div>
-                <p>2 letters are in the correct spot, 1 more letter is present but in the wrong spot.</p>
-                <div class="flex-row" style="justify-content: start; margin: 10px 0;">
-                    <div style="display: flex; gap: 5px;">
-                        <div style="width: 30px; height: 30px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; background: #000; color: #fff;">B</div>
-                        <div style="width: 30px; height: 30px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; background: #000; color: #fff;">U</div>
-                        <div style="width: 30px; height: 30px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; background: #000; color: #fff;">R</div>
-                        <div style="width: 30px; height: 30px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; background: #000; color: #fff;">P</div>
-                    </div>
-                    <div style="display: flex; gap: 5px; margin-left: 10px;">
-                        <div style="width: 25px; height: 25px; background-color: #787c7e; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%;">0</div>
-                        <div style="width: 25px; height: 25px; background-color: #787c7e; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%;">0</div>
-                    </div>
-                </div>
-                <p>None of the letters are present in the word.</p>
-                <p style="margin-top: 15px; font-size: 0.8em; color: #aaa;">hardword.co</p>
             </div>
+            <button class="next-btn" id="nextBtn" onclick="nextWordGame()">NEXT WORD</button>
         </div>
     </div>
-    
+
     <div class="game-container">
-        <div class="guess-board" id="guessBoard">
-            <!-- Guess rows will be added by JavaScript -->
-        </div>
-        
-        <div class="keyboard-area">
-            <div class="keyboard-row">
-                <button class="key" onclick="pressKey('Q')">Q</button>
-                <button class="key" onclick="pressKey('W')">W</button>
-                <button class="key" onclick="pressKey('E')">E</button>
-                <button class="key" onclick="pressKey('R')">R</button>
-                <button class="key" onclick="pressKey('T')">T</button>
-                <button class="key" onclick="pressKey('Y')">Y</button>
-                <button class="key" onclick="pressKey('U')">U</button>
-                <button class="key" onclick="pressKey('I')">I</button>
-                <button class="key" onclick="pressKey('O')">O</button>
-                <button class="key" onclick="pressKey('P')">P</button>
-            </div>
-            <div class="keyboard-row">
-                <div style="width: 15px;"></div>
-                <button class="key" onclick="pressKey('A')">A</button>
-                <button class="key" onclick="pressKey('S')">S</button>
-                <button class="key" onclick="pressKey('D')">D</button>
-                <button class="key" onclick="pressKey('F')">F</button>
-                <button class="key" onclick="pressKey('G')">G</button>
-                <button class="key" onclick="pressKey('H')">H</button>
-                <button class="key" onclick="pressKey('J')">J</button>
-                <button class="key" onclick="pressKey('K')">K</button>
-                <button class="key" onclick="pressKey('L')">L</button>
-                <div style="width: 15px;"></div>
-            </div>
-            <div class="keyboard-row">
-                <button class="key wide" onclick="submitGuess()">ENTER</button>
-                <button class="key" onclick="pressKey('Z')">Z</button>
-                <button class="key" onclick="pressKey('X')">X</button>
-                <button class="key" onclick="pressKey('C')">C</button>
-                <button class="key" onclick="pressKey('V')">V</button>
-                <button class="key" onclick="pressKey('B')">B</button>
-                <button class="key" onclick="pressKey('N')">N</button>
-                <button class="key" onclick="pressKey('M')">M</button>
-                <button class="key wide" onclick="pressKey('Backspace')">⌫</button>
+        <div>
+            <div class="guess-board" id="board"></div>
+
+            <div class="keyboard">
+                <div class="krow">
+                    <div class="key">Q</div><div class="key">W</div><div class="key">E</div><div class="key">R</div>
+                    <div class="key">T</div><div class="key">Y</div><div class="key">U</div><div class="key">I</div>
+                    <div class="key">O</div><div class="key">P</div>
+                </div>
+                <div class="krow">
+                    <div class="key">A</div><div class="key">S</div><div class="key">D</div><div class="key">F</div>
+                    <div class="key">G</div><div class="key">H</div><div class="key">J</div><div class="key">K</div>
+                    <div class="key">L</div>
+                </div>
+                <div class="krow">
+                    <div class="key wide">ENTER</div>
+                    <div class="key">Z</div><div class="key">X</div><div class="key">C</div>
+                    <div class="key">V</div><div class="key">B</div><div class="key">N</div><div class="key">M</div>
+                    <div class="key wide">⌫</div>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Game words (all 4 letters with unique characters)
-        const words = [
-            "ABLE", "ACID", "AGED", "ALSO", "AREA", "ARM", "AWAY", "BABY", 
-            "BACK", "BALL", "BAND", "BANK", "BASE", "BATH", "BEAR", "BEAT", 
-            "BEAU", "BEEN", "BEER", "BELL", "BELT", "BEND", "BENT", "BEST", 
-            "BILL", "BIRD", "BLOW", "BLUE", "BOAT", "BODY", "BOND", "BONE", 
-            "BOOK", "BOOM", "BORN", "BOSS", "BOTH", "BOWL", "BULK", "BURN", 
-            "BUSH", "BUSY", "CALM", "CAME", "CAMP", "CARD", "CARE", "CASE", 
-            "CASH", "CAST", "CHAT", "CHIP", "CITY", "CLUB", "COAL", "COAT", 
-            "CODE", "COLD", "COME", "COOK", "COOL", "COPE", "COPY", "CORE", 
-            "COST", "CREW", "CROP", "CURE", "CUTE", "DARK", "DATA", "DATE", 
-            "DAWN", "DAYS", "DEAD", "DEAF", "DEAL", "DEAN", "DEAR", "DEBT", 
-            "DEEP", "DENY", "DESK", "DIAL", "DIED", "DIET", "DISC", "DISH", 
-            "DISK", "DOES", "DONE", "DOOR", "DOSE", "DOWN", "DRAW", "DREW", 
-            "DROP", "DRUG", "DUAL", "DUKE", "DUST", "DUTY", "EACH", "EARL", 
-            "EARN", "EASE", "EAST", "EASY", "ECHO", "EDGE", "ELSE", "EVEN", 
-            "EVER", "EXAM", "EXIT", "FACE", "FACT", "FAIL", "FAIR", "FALL", 
-            "FAME", "FARM", "FAST", "FATE", "FEAR", "FEED", "FEEL", "FEET", 
-            "FELL", "FELT", "FILE", "FILL", "FILM", "FIND", "FINE", "FIRE", 
-            "FIRM", "FISH", "FIST", "FITS", "FIVE", "FLAT", "FLOW", "FOOD", 
-            "FOOT", "FORD", "FORK", "FORM", "FORT", "FOUR", "FREE", "FROM", 
-            "FUEL", "FULL", "FUND", "GAIN", "GAME", "GATE", "GAVE", "GEAR", 
-            "GENE", "GIFT", "GIRL", "GIVE", "GLAD", "GOAL", "GOES", "GOLD", 
-            "GOLF", "GONE", "GOOD", "GRAY", "GREW", "GREY", "GROW", "GULF", 
-            "HAIR", "HALF", "HALL", "HAND", "HANG", "HARD", "HARM", "HATE", 
-            "HAVE", "HEAD", "HEAR", "HEAT", "HELD", "HELL", "HELP", "HERE", 
-            "HERO", "HERS", "HIDE", "HIGH", "HILL", "HIRE", "HOLD", "HOLE", 
-            "HOME", "HOPE", "HOST", "HOUR", "HUGE", "HUNG", "HUNT", "HURT", 
-            "ICON", "IDEA", "IDLE", "INTO", "IRON", "ITEM", "JACK", "JANE", 
-            "JEAN", "JOHN", "JOIN", "JUMP", "JURY", "JUST", "KEEN", "KEEP", 
-            "KENT", "KEPT", "KICK", "KILL", "KIND", "KING", "KNEE", "KNEW", 
-            "KNOW", "LACK", "LADY", "LAID", "LAKE", "LAND", "LANE", "LAST", 
-            "LATE", "LEAD", "LEFT", "LESS", "LIFE", "LIFT", "LIKE", "LINE", 
-            "LINK", "LIST", "LIVE", "LOAD", "LOAN", "LOCK", "LONG", "LOOK", 
-            "LORD", "LOSE", "LOSS", "LOST", "LOUD", "LOVE", "LUCK", "MADE", 
-            "MAIL", "MAIN", "MAKE", "MALE", "MANY", "MASS", "MEAL", "MEAN", 
-            "MEAT", "MEET", "MENU", "MILE", "MILK", "MINE", "MISS", "MODE", 
-            "MOOD", "MOON", "MORE", "MOST", "MOVE", "MUCH", "MUST", "NAME", 
-            "NAVY", "NEAR", "NECK", "NEED", "NEWS", "NEXT", "NICE", "NINE", 
-            "NONE", "NOSE", "NOTE", "OKAY", "ONCE", "ONLY", "OPEN", "ORAL", 
-            "OVER", "PACE", "PACK", "PAGE", "PAID", "PAIN", "PAIR", "PALE", 
-            "PALM", "PANT", "PARK", "PART", "PASS", "PAST", "PATH", "PEAK", 
-            "PICK", "PINK", "PIPE", "PLAN", "PLAY", "PLOT", "PLUG", "PLUS", 
-            "POEM", "POET", "POLE", "POLL", "POOL", "POOR", "POPE", "PORK", 
-            "PORT", "POST", "PULL", "PURE", "PUSH", "PUTT", "RACE", "RAIL", 
-            "RAIN", "RANK", "RARE", "RATE", "READ", "REAL", "REAR", "REST", 
-            "RICE", "RICH", "RIDE", "RING", "RISE", "RISK", "ROAD", "ROCK", 
-            "ROLE", "ROLL", "ROOF", "ROOM", "ROOT", "ROPE", "ROSE", "RULE", 
-            "RUSH", "SAFE", "SAID", "SAKE", "SALE", "SALT", "SAME", "SAND", 
-            "SAVE", "SEAT", "SEED", "SEEK", "SEEM", "SEEN", "SELL", "SEND", 
-            "SENT", "SHIP", "SHOP", "SHOT", "SHOW", "SHUT", "SICK", "SIDE", 
-            "SIGN", "SING", "SITE", "SIZE", "SKIN", "SLIP", "SLOW", "SNOW", 
-            "SOFT", "SOIL", "SOLD", "SOLE", "SOME", "SONG", "SOON", "SORT", 
-            "SOUL", "SPOT", "STAR", "STAY", "STEP", "STOP", "SUCH", "SUIT", 
-            "SURE", "TAKE", "TALE", "TALK", "TALL", "TANK", "TAPE", "TASK", 
-            "TEAM", "TEAR", "TECH", "TELL", "TEND", "TERM", "TEST", "TEXT", 
-            "THAN", "THAT", "THEM", "THEN", "THEY", "THIN", "THIS", "THOU", 
-            "THUS", "TIDE", "TINY", "TOLD", "TOLL", "TONE", "TONY", "TOOK", 
-            "TOOL", "TOUR", "TOWN", "TREE", "TRIP", "TRUE", "TURN", "TWIN", 
-            "TYPE", "UNIT", "UPON", "USED", "USER", "VARY", "VAST", "VERY", 
-            "VICE", "VIEW", "VOTE", "WAGE", "WAIT", "WAKE", "WALK", "WALL", 
-            "WANT", "WARD", "WARM", "WASH", "WAVE", "WAYS", "WEAK", "WEAR", 
-            "WEEK", "WELL", "WENT", "WERE", "WEST", "WHAT", "WHEN", "WHOM", 
-            "WIDE", "WIFE", "WILD", "WILL", "WIND", "WINE", "WING", "WIRE", 
-            "WISH", "WITH", "WOLF", "WOOD", "WORD", "WORE", "WORK", "WORM", 
-            "WORN", "YARD", "YEAH", "YEAR", "YOUR", "ZERO"
-        ].filter(word => new Set(word).size === 4);
+<input id="mobile-input" type="text" autocapitalize="characters" />
 
-        // Game state
-        let targetWord = words[Math.floor(Math.random() * words.length)];
-        let currentRow = 0;
-        let currentGuess = '';
-        const maxGuesses = 8;
+<script>
+const WORDS = [
+"ABLE","ACID","AGED","ALSO","AREA","ATOM","AUNT","AUTO","BAND","BANK",
+"BATH","BEAR","BEND","BIRD","BLOW","BLUE","BOAT","BOND","BOWL","BULK",
+"BURN","CALM","CAMP","CARD","CARE","CAST","CHAT","CHIP","CITY","CLUB",
+"COAL","COAT","CODE","COLD","CORE","COST","CREW","CROP","CURE","DARK",
+"DATA","DATE","DAWN","DEAL","DECK","DESK","DIAL","DIET","DISH","DOOR",
+"DOWN","DRAW","DROP","DUAL","DUST","DUTY","EACH","EARN","EAST","ECHO",
+"EDGE","EVEN","EXIT","FACE","FACT","FAIR","FALL","FARM","FAST","FATE",
+"FEAR","FEED","FILL","FILM","FIND","FIRE","FIRM","FISH","FITS","FIVE",
+"FLAT","FLOW","FOOD","FOOT","FORK","FORM","FORT","FOUR","FREE","FUEL",
+"FULL","FUND","GAIN","GAME","GATE","GEAR","GIFT","GIRL","GIVE","GLAD",
+"GOAL","GOLD","GOLF","GRAY","GROW","HAIR","HALF","HALL","HAND","HANG",
+"HARD","HARM","HATE","HAVE","HEAD","HEAT","HELP","HERO","HIDE","HIGH",
+"HILL","HIRE","HOLD","HOME","HOPE","HOST","HOUR","HUGE","HUNT","HURT",
+"ICON","IDEA","IDLE","INTO","IRON","ITEM","JOIN","JUMP","JURY","JUST",
+"KEEN","KEEP","KICK","KIND","KING","KNEE","KNOW","LACK","LADY","LAKE",
+"LAND","LANE","LAST","LATE","LEAD","LEFT","LESS","LIFE","LIFT","LIKE",
+"LINE","LINK","LIST","LIVE","LOAD","LOAN","LOCK","LONG","LOOK","LORD",
+"LOSE","LOSS","LOST","LOUD","LOVE","LUCK","MAIL","MAIN","MAKE","MALE",
+"MANY","MASS","MEAL","MEAN","MEAT","MEET","MENU","MILE","MILK","MIND",
+"MODE","MOOD","MOON","MORE","MOVE","MUCH","MUST","NAME","NAVY","NEAR",
+"NECK","NEED","NEWS","NEXT","NICE","NINE","NONE","NOSE","NOTE","OPEN",
+"OVER","PACK","PAGE","PAID","PAIR","PALE","PALM","PARK","PART","PASS",
+"PAST","PATH","PEAK","PICK","PIPE","PLAN","PLAY","PLOT","PLUG","PLUS",
+"POEM","POET","POLE","POOL","POOR","PORT","POST","PULL","PURE","PUSH",
+"RACE","RAIL","RAIN","RANK","RATE","READ","REAL","REST","RICE","RICH",
+"RIDE","RING","RISE","RISK","ROAD","ROCK","ROLE","ROLL","ROOF","ROOM",
+"ROOT","ROSE","RULE","RUSH","SAFE","SALT","SAND","SAVE","SEAT","SEED",
+"SEEK","SEEM","SELL","SEND","SHIP","SHOT","SHOW","SHUT","SICK","SIDE",
+"SIGN","SING","SITE","SIZE","SKIN","SLIP","SLOW","SNOW","SOFT","SOIL",
+"SOLD","SOLE","SONG","SOON","SORT","SOUL","SPOT","STAR","STAY","STEP",
+"STOP","SUIT","SURE","TAKE","TALE","TALK","TALL","TANK","TAPE","TASK",
+"TEAM","TEAR","TELL","TERM","TEST","TEXT","THAN","THIN","THIS","TIDE",
+"TINY","TONE","TOOL","TOUR","TOWN","TREE","TRIP","TRUE","TURN","TYPE",
+"UNIT","UPON","USED","USER","VARY","VAST","VERY","VICE","VIEW","VOTE",
+"WAGE","WAIT","WAKE","WALK","WALL","WANT","WARM","WASH","WAVE","WAYS",
+"WEAK","WEAR","WEEK","WELL","WIDE","WIFE","WILD","WIND","WINE","WING",
+"WIRE","WISH","WITH","WOLF","WOOD","WORK","WORM","YARD","YEAR","ZERO"
+].filter(w => new Set(w).size === 4);
 
-        // Initialize the guess board
-        function initializeBoard() {
-            const board = document.getElementById('guessBoard');
-            board.innerHTML = '';
-            
-            for (let i = 0; i < maxGuesses; i++) {
-                const row = document.createElement('div');
-                row.className = 'guess-row';
-                
-                // Letter boxes
-                for (let j = 0; j < 4; j++) {
-                    const box = document.createElement('div');
-                    box.className = 'letter-box';
-                    box.innerHTML = `
-                        <div class="letter-box-front"></div>
-                        <div class="letter-box-back"></div>
-                    `;
-                    box.id = `box-${i}-${j}`;
-                    row.appendChild(box);
-                }
-                
-                // Score circles (empty by default)
-                const scoreContainer = document.createElement('div');
-                scoreContainer.className = 'flex-row';
-                
-                const correctScore = document.createElement('div');
-                correctScore.className = 'attempt-score attempt-score-empty';
-                correctScore.textContent = '0';
-                correctScore.id = `correct-${i}`;
-                scoreContainer.appendChild(correctScore);
-                
-                const presentScore = document.createElement('div');
-                presentScore.className = 'attempt-score attempt-score-empty';
-                presentScore.textContent = '0';
-                presentScore.id = `present-${i}`;
-                scoreContainer.appendChild(presentScore);
-                
-                row.appendChild(scoreContainer);
-                board.appendChild(row);
-            }
+const MAX = 8;
+
+let pool = [...WORDS], i = 0;
+let target = "", row = 0, guess = "", over = false;
+
+/* ✅ KEYBOARD MEMORY */
+let usedLetters = new Set();
+
+function shuffle(a){
+    for(let i=a.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+    }
+}
+shuffle(pool);
+
+function nextWord(){
+    if(i>=pool.length){ shuffle(pool); i=0; }
+    return pool[i++];
+}
+
+function startGame(){
+    document.getElementById("landing").style.display="none";
+    document.getElementById("game-app").style.display="grid";
+    resetGame();
+}
+
+function resetGame(){
+    target = nextWord();
+    row = 0;
+    guess = "";
+    over = false;
+
+    usedLetters.clear();
+    resetKeyboard();
+
+    document.getElementById("answerBar").textContent="";
+    document.getElementById("nextBtn").classList.remove("show");
+    buildBoard();
+}
+
+function nextWordGame(){ resetGame(); }
+
+function buildBoard(){
+    const b=document.getElementById("board");
+    b.innerHTML="";
+    for(let r=0;r<MAX;r++){
+        const rowDiv=document.createElement("div");
+        rowDiv.className="guess-row";
+        for(let c=0;c<4;c++){
+            const box=document.createElement("div");
+            box.className="letter-box";
+            box.id=`c-${r}-${c}`;
+            rowDiv.appendChild(box);
         }
+        const s=document.createElement("div");
+        s.className="score-container";
+        s.innerHTML=`<div class="score" id="g-${r}"></div><div class="score" id="y-${r}"></div>`;
+        rowDiv.appendChild(s);
+        b.appendChild(rowDiv);
+    }
+}
 
-        // Handle keyboard presses
-        function pressKey(key) {
-            if (key === 'Backspace') {
-                currentGuess = currentGuess.slice(0, -1);
-            } else if (key === 'Enter') {
-                submitGuess();
-            } else if (/^[A-Z]$/.test(key) && currentGuess.length < 4) {
-                currentGuess += key;
-            }
-            updateCurrentGuessDisplay();
+function updateRow(){
+    for(let i=0;i<4;i++){
+        document.getElementById(`c-${row}-${i}`).textContent=guess[i]||"";
+    }
+}
+
+function submit(){
+    if(guess.length!==4 || over) return;
+
+    /* ✅ MUTE USED LETTERS ON SUBMISSION */
+    for(const letter of guess){
+        if(!usedLetters.has(letter)){
+            usedLetters.add(letter);
+            muteKey(letter);
         }
+    }
 
-        // Update the display of the current guess
-        function updateCurrentGuessDisplay() {
-            const row = currentRow;
-            for (let i = 0; i < 4; i++) {
-                const front = document.querySelector(`#box-${row}-${i} .letter-box-front`);
-                front.textContent = currentGuess[i] || '';
-            }
+    let g=0,y=0;
+    for(let i=0;i<4;i++){
+        if(guess[i]===target[i]) g++;
+        else if(target.includes(guess[i])) y++;
+    }
+
+    document.getElementById(`g-${row}`).textContent=g;
+    document.getElementById(`y-${row}`).textContent=y;
+    if(g) document.getElementById(`g-${row}`).classList.add("green");
+    if(y) document.getElementById(`y-${row}`).classList.add("yellow");
+
+    if(g===4 || row===MAX-1){
+        document.getElementById("answerBar").innerHTML=`The word was <strong>${target}</strong>`;
+        document.getElementById("nextBtn").classList.add("show");
+        over=true;
+        return;
+    }
+
+    row++;
+    guess="";
+}
+
+function input(k){
+    if(over) return;
+    if(k==="ENTER") submit();
+    else if(k==="⌫"){
+        guess = guess.slice(0,-1);
+        updateRow();
+    }
+    else if(/^[A-Z]$/.test(k) && guess.length<4){
+        guess += k;
+        updateRow();
+    }
+}
+
+/* ===== KEYBOARD HELPERS ===== */
+function muteKey(letter){
+    document.querySelectorAll(".key").forEach(k=>{
+        if(k.textContent === letter){
+            k.classList.add("used");
         }
+    });
+}
 
-        // Submit a guess
-        function submitGuess() {
-            if (currentGuess.length !== 4) {
-                alert('Please enter a 4-letter word');
-                return;
-            }
-            
-            if (new Set(currentGuess).size !== 4) {
-                alert('All letters must be unique');
-                return;
-            }
-            
-            if (!words.includes(currentGuess)) {
-                alert('Not a valid word');
-                return;
-            }
-            
-            // Display the guess with flip animation
-            for (let i = 0; i < 4; i++) {
-                const box = document.getElementById(`box-${currentRow}-${i}`);
-                const back = box.querySelector('.letter-box-back');
-                back.textContent = currentGuess[i];
-                
-                // Trigger flip animation with delay
-                setTimeout(() => {
-                    box.classList.add('flip');
-                }, i * 300);
-            }
-            
-            // Calculate feedback
-            const feedback = evaluateGuess(currentGuess);
-            
-            // Update score circles
-            const correctScore = document.getElementById(`correct-${currentRow}`);
-            const presentScore = document.getElementById(`present-${currentRow}`);
-            
-            correctScore.textContent = feedback.correct;
-            presentScore.textContent = feedback.present;
-            
-            // Style score circles based on results
-            if (feedback.correct === 0 && feedback.present === 0) {
-                // All letters wrong - gray circles
-                correctScore.className = 'attempt-score attempt-score-absent';
-                presentScore.className = 'attempt-score attempt-score-absent';
-            } else {
-                // Some letters correct
-                correctScore.className = 'attempt-score attempt-score-correct';
-                presentScore.className = 'attempt-score attempt-score-present';
-            }
-            
-            // Check for win
-            if (feedback.correct === 4) {
-                setTimeout(() => alert('Congratulations! You won!'), 1500);
-                return;
-            }
-            
-            currentRow++;
-            currentGuess = '';
-            
-            // Check for loss
-            if (currentRow === maxGuesses) {
-                setTimeout(() => alert(`Game over! The word was ${targetWord}.`), 1500);
-            }
-        }
+function resetKeyboard(){
+    document.querySelectorAll(".key").forEach(k=>{
+        k.classList.remove("used");
+    });
+}
 
-        // Evaluate a guess
-        function evaluateGuess(guess) {
-            let correct = 0;
-            let present = 0;
-            
-            for (let i = 0; i < 4; i++) {
-                if (guess[i] === targetWord[i]) {
-                    correct++;
-                } else if (targetWord.includes(guess[i])) {
-                    present++;
-                }
-            }
-            
-            return { correct, present };
-        }
+document.querySelectorAll(".key").forEach(k=>k.onclick=()=>input(k.textContent));
+document.addEventListener("keydown",e=>input(e.key.toUpperCase()));
+</script>
 
-        // Initialize the game when the page loads
-        window.onload = function() {
-            initializeBoard();
-            
-            // Handle physical keyboard input
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Backspace') {
-                    pressKey('Backspace');
-                } else if (event.key === 'Enter') {
-                    pressKey('Enter');
-                } else if (/^[a-zA-Z]$/.test(event.key)) {
-                    pressKey(event.key.toUpperCase());
-                }
-            });
-        };
-    </script>
 </body>
 </html>
