@@ -67,7 +67,7 @@ html, body {
 
 .title h1 {
     margin: 0;
-    font-size: 2.2rem;
+    font-size: 2.9rem;
     letter-spacing: 5px;
     line-height: 1.1;
 }
@@ -96,18 +96,21 @@ html, body {
     display: block;
 }
 
-/* ===== ANSWER + NEXT ===== */
+/* ANSWER SENTENCE — make it clearly readable */
 .answer-bar {
-    margin-top: 6px;
-    font-size: 0.95rem;
-    color: #aaa;
-    min-height: 18px;
+    margin-top: 12px;
+    font-size: 1.6rem;      /* ⬅️ base text bigger */
+    font-weight: 500;
+    color: #ddd;
+    min-height: 28px;
 }
 
 .answer-bar strong {
-    color: #fff;
+    font-size: 1.6em;       /* ⬅️ ANS becomes BIG */
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: 1px;
 }
-
 .next-btn {
     background: #1f1f1f;
     border: 1px solid #3a3a3a;
@@ -132,13 +135,17 @@ html, body {
     place-items: center;
 }
 
-/* ===== BOARD ===== */
+/* INPUT GRID LAYOUT — hardword-style */
 .guess-board {
-    display: grid;
-    grid-template-rows: repeat(8, 1fr);
-    gap: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    row-gap: 8px;
+
     margin-bottom: 12px;
 }
+
 
 .guess-row {
     display: grid;
@@ -147,20 +154,23 @@ html, body {
     align-items: center;
 }
 
+/* LETTER TILES — final locked style */
 .letter-box {
     height: clamp(40px, 6vh, 44px);
     border-radius: 8px;
     background: #070707;
     border: 1px solid #1a1a1a;
 
-    font-size: clamp(18px, 3.2vh, 20px);
-    font-weight: 700;
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #ffffff;
+
     display: flex;
     align-items: center;
     justify-content: center;
-
-    color: #d8d8d8;
 }
+
 
 
 /* ===== KEYBOARD MEMORY (CRITICAL) ===== */
@@ -227,14 +237,23 @@ html, body {
     margin-bottom: 6px;
 }
 
+/* KEYBOARD KEYS — bigger letters, true center */
 .key {
-    height: clamp(40px, 7vh, 46px);
-    min-width: 30px;
-    padding: 0 8px;
+    height: clamp(42px, 7vh, 48px);
+    min-width: 32px;
+
     background: #2b2b2b;
     border-radius: 6px;
-    font-size: 13px;
-    font-weight: 700;
+
+    font-size: 20px;        /* ⬅️ bigger letters */
+    font-weight: 800;
+    line-height: 1;         /* ⬅️ CRITICAL: removes top-left bias */
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;             /* ⬅️ remove centering drift */
     cursor: pointer;
 }
 
@@ -296,7 +315,7 @@ html, body {
                     <div class="key">L</div>
                 </div>
                 <div class="krow">
-                    <div class="key wide">ENTER</div>
+                    <div class="key wide">ENT</div>
                     <div class="key">Z</div><div class="key">X</div><div class="key">C</div>
                     <div class="key">V</div><div class="key">B</div><div class="key">N</div><div class="key">M</div>
                     <div class="key wide">⌫</div>
@@ -480,7 +499,17 @@ function resetKeyboard(){
 }
 
 document.querySelectorAll(".key").forEach(k=>k.onclick=()=>input(k.textContent));
-document.addEventListener("keydown",e=>input(e.key.toUpperCase()));
+document.addEventListener("keydown", e => {
+    if (e.key === "Backspace") {
+        input("⌫");
+    } else if (e.key === "Enter") {
+        input("ENTER");
+    } else if (/^[a-zA-Z]$/.test(e.key)) {
+        input(e.key.toUpperCase());
+    }
+});
+
+
 </script>
 
 </body>
