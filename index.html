@@ -470,7 +470,7 @@ function submit(){
 
 function input(k){
     if(over) return;
-    if(k==="ENTER") submit();
+    if (k === "ENTER" || k === "ENT") submit();
     else if(k==="⌫"){
         guess = guess.slice(0,-1);
         updateRow();
